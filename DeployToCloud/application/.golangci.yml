@@ -1,0 +1,283 @@
+---
+run:
+  go: '1.17'
+  timeout: 1m
+  issues-exit-code: 1
+  tests: true
+  skip-dirs: []
+  skip-dirs-use-default: true
+  skip-files:
+    - ".*(.|_)gen\\.go"
+    - ".*\\.pb\\.go"
+    - ".*\\.yo\\.go$"
+  allow-parallel-runners: true
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  uniq-by-line: true
+  sort-results: true
+
+linters-settings:
+  depguard:
+    list-type: blacklist
+    include-go-root: true
+    packages-with-error-message:
+      - syscall: |
+          Deprecated: This package is locked down.
+          Callers should use the corresponding package in the golang.org/x/sys repository instead.
+          That is also where updates required by new systems or versions should be applied.
+          See https://golang.org/s/go1.4-syscall for more information.
+      - github.com/satori/go.uuid: |
+          This package have vulnerability. Please use alternative uuid package such as "github.com/google/uuid".
+      - github.com/stretchr/testify/mock: |
+          DO NOT USE testing framework.
+      - github.com/stretchr/testify/suite: |
+          DO NOT USE testing framework.
+      - github.com/golang/protobuf/proto: |
+          Deprecated: Use the "google.golang.org/protobuf/proto" package instead.
+      - github.com/golang/protobuf/ptypes: |
+          Deprecated: Use the "google.golang.org/protobuf/types/known/anypb" package instead.
+      - github.com/golang/protobuf/ptypes/any: |
+          Deprecated: Use the "google.golang.org/protobuf/types/known/anypb" package instead.
+      - github.com/golang/protobuf/ptypes/duration: |
+          Deprecated: Use the "google.golang.org/protobuf/types/known/durationpb" package instead.
+      - github.com/golang/protobuf/ptypes/empty: |
+          Deprecated: Use the "google.golang.org/protobuf/types/known/emptypb" package instead.
+      - github.com/golang/protobuf/ptypes/struct: |
+          Deprecated: Use the "google.golang.org/protobuf/types/known/structpb" package instead.
+      - github.com/golang/protobuf/ptypes/timestamp: |
+          Deprecated: Use the "google.golang.org/protobuf/types/known/timestamppb" package instead.
+      - github.com/golang/protobuf/ptypes/wrappers: |
+          Deprecated: Use the "google.golang.org/protobuf/types/known/wrapperspb" package instead.
+      - github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap: |
+          DO NOT USE ctxzap. Please check grpcserver/internal#LogWithFields.
+  dupl:
+    threshold: 150
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+    # exclude: .errcheckignore
+  errorlint:
+    errorf: true
+  exhaustive:
+    check-generated: true
+    default-signifies-exhaustive: false
+  funlen:
+    lines: 100
+    statements: 60
+  gci:
+    # Checks that no inline Comments are present.
+    # Default: false
+    no-inline-comments: false
+    # Checks that no prefix Comments(comment lines above an import) are present.
+    # Default: false
+    no-prefix-comments: false
+    # Section configuration to compare against.
+    # Section names are case-insensitive and may contain parameters in ().
+    # Default: ["standard", "default"]
+    sections:
+      - standard                                 # Captures all standard packages if they do not match another section.
+      - default                                  # Contains all imports that could not be matched to another section type.
+      - prefix(github.com/travisjeffery/proglog) # Groups all imports with the specified Prefix.
+    # Separators that should be present between sections.
+    # Default: ["newLine"]
+    section-separators:
+      - newLine
+  gocognit:
+    min-complexity: 30
+  goconst:
+    min-len: 5
+    min-occurrences: 5
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - commentedOutCode
+    settings:
+      hugeParam:
+        sizeThreshold: 256
+      rangeExprCopy:
+        sizeThreshold: 512
+      rangeValCopy:
+        sizeThreshold: 128
+  gocyclo:
+    min-complexity: 15
+  gofmt:
+    simplify: true
+  gofumpt:
+    # Select the Go version to target.
+    # Default: 1.15
+    lang-version: "1.17"
+    # Choose whether to use the extra rules.
+    # Default: false
+    extra-rules: true
+    # Module path which contains the source code being formatted.
+    # Default: empty string
+    module-path: github.com/travisjeffery/proglog
+  govet:
+    enable-all: true
+    check-shadowing: true
+    disable:
+      - fieldalignment
+  maligned:
+    suggest-new: true
+  misspell:
+    locale: US
+    ignore-words:
+      - cancelled
+  nakedret:
+    max-func-lines: 30
+  nestif:
+    min-complexity: 7
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: true
+  thelper:
+    test:
+      name: true
+      begin: true
+    benchmark:
+      name: true
+      begin: true
+  unparam:
+    check-exported: true
+    algo: cha
+  unused:
+    check-exported: false
+  whitespace:
+    multi-if: true
+    multi-func: true
+  # staticcheck
+  staticcheck:
+    # Select the Go version to target. The default is '1.13'.
+    go: "1.17"
+    # https://staticcheck.io/docs/options#checks
+    checks: [ "all" ]
+  # staticcheck stylecheck
+  stylecheck:
+    # Select the Go version to target. The default is '1.13'.
+    go: "1.17"
+    # https://staticcheck.io/docs/options#checks
+    checks: [ "all", "-ST1000", "-ST1003", "-ST1016", "-ST1020", "-ST1021", "-ST1022" ]
+    # https://staticcheck.io/docs/options#initialisms
+    initialisms: [ "ACL", "API", "ASCII", "CPU", "CSS", "DNS", "EOF", "GUID", "HTML", "HTTP", "HTTPS", "ID", "IP", "JSON", "QPS", "RAM", "RPC", "SLA", "SMTP", "SQL", "SSH", "TCP", "TLS", "TTL", "UDP", "UI", "GID", "UID", "UUID", "URI", "URL", "UTF8", "VM", "XML", "XMPP", "XSRF", "XSS" ]
+    # https://staticcheck.io/docs/options#http_status_code_whitelist
+    # http-status-code-whitelist: [ "200", "400", "404", "500" ]
+
+linters:
+  fast: false
+  disabled:
+    - exhaustivestruct  # Checks if all struct's fields are initialized.
+    - forbidigo         # Forbids identifiers.
+    - gochecknoglobals  # check that no global variables exist.
+    - gochecknoinits    # Checks that no init functions are present in Go code.
+    - godox             # Tool for detection of FIXME, TODO and other comment keywords.
+    - gofmt
+    - goerr113          # Golang linter to check the errors handling expressions.
+    - goheader          # Checks is file header matches to pattern.
+    - goimports
+    - gomnd             # An analyzer to detect magic numbers.
+    - gomodguard        # Allow and block list linter for direct Go module dependencies.
+    - gosec             # Inspects source code for security problems.
+    - ifshort
+    - lll               # Reports long lines.
+    - maligned          # Tool to detect Go structs that would take less memory if their fields were sorted.
+    - nlreturn          # nlreturn checks for a new line before return and branch statements to increase code clarity.
+    - scopelint         # Scopelint checks for unpinned variables in go programs.
+    - sqlclosecheck     # Checks that sql.Rows and sql.Stmt are closed.
+    - paralleltest # paralleltest detects missing usage of t.Parallel() method in your Go test.
+    - wsl               # Whitespace Linter.
+  enable:
+    - asciicheck
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - errname
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - funlen
+    - forcetypeassert
+    - gci
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofumpt # Gofumpt checks whether code was gofumpt-ed.
+    - goprintffuncname
+    - gosimple
+    - govet
+    - ineffassign
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nilerr
+    - noctx
+    - nolintlint
+    - prealloc
+    - rowserrcheck
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - thelper
+    - tparallel
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - wastedassign
+    - whitespace
+
+issues:
+  include:
+    - EXC0011  # https://github.com/golangci/golangci-lint/blob/v1.35.0/pkg/config/config.go#L103
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-use-default: true
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - dogsled
+        - dupl
+        - errcheck
+        - errorlint
+        - funlen
+        - gocognit
+        - goconst
+        - gocyclo
+        - wrapcheck
+        - unused
+        - prealloc
+        - forcetypeassert
+    - path: _export_test\.go
+      linters:
+        - unused
+    # `TestMain` function is no longer required to call `os.Exit` since Go 1.15.
+    # ref: https://golang.org/doc/go1.15#testing
+    - text: "SA3000:"
+      linters:
+        - staticcheck
+    # Exclude shadow checking on the variable named err
+    - text: "shadow: declaration of \"(err|ok)\""
+      linters:
+        - govet
+    # conflict gofumpt format
+    - text: "multi-line statement should be followed by a newline"
+      linters:
+        - whitespace
+    - linters:
+        - tparallel
+      # use global fakeClock to sub-test
+      path: timeutil/clock
